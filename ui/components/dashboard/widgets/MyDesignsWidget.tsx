@@ -51,6 +51,9 @@ const cardData = [
 const MyDesignsWidget = ({ iconsProps }: MyDesignsWidgetProps) => {
   const [sortOrder, setSortOrder] = useState(DEFAULT_SORT_ORDER);
   const { data: userData } = useGetLoggedInUserQuery();
+  // A skipped query reports isFetching as false, so treat an unresolved user as
+  // loading to avoid rendering the "no designs" empty state before any request runs.
+  const isUserLoading = !userData?.id;
   const {
     data: patternsData,
     isFetching: isPatternsFetching,
@@ -105,7 +108,7 @@ const MyDesignsWidget = ({ iconsProps }: MyDesignsWidgetProps) => {
       }}
     >
       <DesignCard
-        isPatternsFetching={isPatternsFetching}
+        isPatternsFetching={isPatternsFetching || isUserLoading}
         cardData={cardData}
         resources={resources}
         icon={

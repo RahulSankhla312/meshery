@@ -169,6 +169,13 @@ describe('MyDesignsWidget', () => {
     expect(options).toEqual({ skip: true });
   });
 
+  it('reports loading while the logged-in user id is unresolved', () => {
+    loggedInReturn = {};
+    patternsReturn = { data: undefined, isFetching: false, isError: false };
+    render(<MyDesignsWidget />);
+    expect(screen.getByTestId('design-card')).toHaveAttribute('data-loading', 'true');
+  });
+
   it('does not skip fetching designs once the logged-in user id is available', () => {
     render(<MyDesignsWidget />);
     const [, options] = useGetUserDesignsQuerySpy.mock.calls[0];
