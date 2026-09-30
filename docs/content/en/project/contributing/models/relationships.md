@@ -321,6 +321,19 @@ An empty string. The property is deprecated (see the schema's deprecation notice
 2. In the event of conflicting Relationship Definitions, the union between them is taken.
    - If we have two Relationships, one from (Component A) to (Component B and Component F), and another from (Component A) to (Component B and Component C), then it is similar to having a Relationship from Component A to Component B, C and F.
 3. No relationship kind is inherently more important than another.
+4. **Nothing reports a conflict.** Meshery has no conflict detection; evaluation is built to avoid conflicts rather than surface them. Overlapping definitions are merged by the union above, and the `matchlabels` policies use set comprehensions to weed out duplicate declarations, so a redundant or contradictory definition produces no warning and no error.
+5. **An incomplete `deny` selector never denies.** Denial requires the selector's `kind` *and* `model` (both `name` and `registrant`) to match the declaration (`models/meshery-core/<version>/v1.0.0/policies/deny_relationship_evaluator.rego`). If the selector omits any of them, the rule evaluates to undefined, `not is_relationship_denied` is therefore true, and the relationship is created anyway. Spell the model out:
+
+   ```json
+   {
+     "deny": {
+       "from": [{"kind": "ServiceAccount", "model": {"name": "kubernetes", "registrant": "meshery"}}],
+       "to": [{"kind": "Role", "model": {"name": "kubernetes", "registrant": "meshery"}}]
+     }
+   }
+   ```
+
+6. **Verify the outcome, not the definition.** Because no error is raised, confirm that a `deny` took effect by evaluating the design and inspecting which relationships were actually created. `mesheryctl relationship` provides `view`, `list`, `search` and `generate`; there is no `validate` or `test` subcommand.
 
 #### Schema Conformance
 
